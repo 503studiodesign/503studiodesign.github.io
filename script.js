@@ -18,7 +18,7 @@ elements.forEach(el => {
 });
 
 // Scrolling IMG ao rolar
-const frameCount = 60; // quantidade de imagens
+const frameCount = 7; // quantidade de imagens
 
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
@@ -28,7 +28,7 @@ canvas.height = 720;
 
 // gera caminho das imagens
 const currentFrame = index => {
-  return `images/frame_${String(index).padStart(4, '0')}.png`;
+  return `images/frame_00${String(index).padStart(4, '0')}.png`;
 };
 
 const images = [];

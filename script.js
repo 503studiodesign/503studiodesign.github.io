@@ -28,7 +28,7 @@ canvas.height = 720;
 
 // gera caminho das imagens
 const currentFrame = index => {
-  return `images/frame_${String(index).padStart(4, '1')}.png`;
+  return `image/frame_${String(index).padStart(4, '1')}.png`;
 };
 
 const images = [];

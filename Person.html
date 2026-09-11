@@ -1,9 +1,13 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animação de Frames - Suavizada com Lerp</title>
+
+    <title>Animação de Frames - Lerp + Mouse</title>
+
     <style>
         * {
             margin: 0;
@@ -11,134 +15,386 @@
             box-sizing: border-box;
         }
 
+        html,
         body {
-            background-color: #0f0f0f;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
+            background-color: #0f0f0f;
+        }
+
+        body {
             font-family: sans-serif;
         }
 
         .container {
+            position: fixed;
+            inset: 0;
+
             width: 100vw;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+
+            overflow: hidden;
         }
 
         canvas {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+            position: absolute;
+            inset: 0;
+
+            width: 100vw;
+            height: 100vh;
+
+            display: block;
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
         <canvas id="frameCanvas"></canvas>
     </div>
 
+
     <script>
+
+        // =========================================================
+        // CANVAS
+        // =========================================================
+
         const canvas = document.getElementById('frameCanvas');
         const context = canvas.getContext('2d');
 
+
+        // =========================================================
+        // CONFIGURAÇÃO DOS FRAMES
+        // =========================================================
+
         const totalFrames = 238;
-        const currentFrameUrl = index => `./frames/frame_${index.toString().padStart(3, '0')}.jpg`;
+
+        const currentFrameUrl = index =>
+            `./frames/frame_${index.toString().padStart(3, '0')}.jpg`;
 
         const images = [];
 
-        // Precarregamento dos frames
+
+        // =========================================================
+        // PRECARREGAMENTO DOS FRAMES
+        // =========================================================
+
         for (let i = 1; i <= totalFrames; i++) {
+
             const img = new Image();
+
             img.src = currentFrameUrl(i);
+
             images.push(img);
         }
 
-        // Variáveis de controle de estado e suavização
-        let currentFrameIndex = 0; // Posição atual do frame (ponto flutuante)
-        let targetFrameIndex = 0;  // Posição de destino apontada pelo mouse
-        const lerpFactor = 0.08;   // Velocidade de suavização (0.01 = muito lento, 0.2 = muito rápido)
 
-        images[0].onload = () => {
-            canvas.width = images[0].naturalWidth;
-            canvas.height = images[0].naturalHeight;
-            // Inicia o loop de renderização contínuo
-            requestAnimationFrame(updateAndRender);
-        };
+        // =========================================================
+        // VARIÁVEIS DE CONTROLE
+        // =========================================================
 
-        function render(index) {
-            const safeIndex = Math.max(0, Math.min(totalFrames - 1, Math.floor(index)));
-            if (images[safeIndex] && images[safeIndex].complete) {
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                context.drawImage(images[safeIndex], 0, 0);
-            }
-        }
+        let currentFrameIndex = 0;
 
-        // Loop contínuo que aplica o Lerp a cada quadro
-        function updateAndRender() {
-            // Calcula a diferença entre o destino e o frame atual
-            let diff = targetFrameIndex - currentFrameIndex;
+        let targetFrameIndex = 0;
 
-            // Trata a transição circular no topo (evita rebobinar 238 frames de uma vez)
-            if (diff > totalFrames / 2) {
-                diff -= totalFrames;
-            } else if (diff < -totalFrames / 2) {
-                diff += totalFrames;
-            }
+        // Quanto menor = mais suave
+        // Quanto maior = mais rápido
+        const lerpFactor = 0.08;
 
-            // Aplica o Lerp se houver uma diferença relevante
-            if (Math.abs(diff) > 0.001) {
-                currentFrameIndex += diff * lerpFactor;
 
-                // Mantém o índice dentro do intervalo válido de 0 a totalFrames
-                if (currentFrameIndex < 0) currentFrameIndex += totalFrames;
-                if (currentFrameIndex >= totalFrames) currentFrameIndex -= totalFrames;
-            } else {
-                currentFrameIndex = targetFrameIndex;
-            }
+        // =========================================================
+        // AJUSTE DO CANVAS
+        // =========================================================
+
+        function resizeCanvas() {
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
 
             render(currentFrameIndex);
-            requestAnimationFrame(updateAndRender);
         }
 
-        window.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
 
-            const dx = e.clientX - centerX;
-            const dy = e.clientY - centerY;
+        // =========================================================
+        // RENDERIZAÇÃO DO FRAME
+        // =========================================================
 
-            const distance = Math.hypot(dx, dy);
+        function render(index) {
 
-            // Zona morta no centro: olha para a frente (frame 0)
-            if (distance < 50) { 
-                targetFrameIndex = 0;
+            const safeIndex = Math.max(
+                0,
+                Math.min(
+                    totalFrames - 1,
+                    Math.floor(index)
+                )
+            );
+
+            const img = images[safeIndex];
+
+            if (!img || !img.complete || !img.naturalWidth) {
                 return;
             }
 
-            let adjustedDx = dx;
-            let adjustedDy = dy;
 
-            if (dy > 0) {
-                // PARTE DE BAIXO
-                adjustedDx = dx * 0.55;
-                adjustedDy = dy * 1.35;
-            } else {
-                // PARTE DE CIMA
-                adjustedDx = dx * 1.40;
-                adjustedDy = dy * 0.70;
+            // =====================================================
+            // LIMPA O CANVAS
+            // =====================================================
+
+            context.clearRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            // =====================================================
+            // ESCALA "COVER"
+            // =====================================================
+            //
+            // A imagem sempre cobre toda a tela.
+            //
+            // Se precisar:
+            // - aumenta pela largura
+            // - ou aumenta pela altura
+            //
+            // O maior valor é escolhido.
+            //
+            // Isso impede que apareçam espaços vazios.
+            // =====================================================
+
+            const scale = Math.max(
+                canvas.width / img.naturalWidth,
+                canvas.height / img.naturalHeight
+            );
+
+
+            // =====================================================
+            // NOVO TAMANHO DA IMAGEM
+            // =====================================================
+
+            const drawWidth =
+                img.naturalWidth * scale;
+
+            const drawHeight =
+                img.naturalHeight * scale;
+
+
+            // =====================================================
+            // CENTRALIZA A IMAGEM
+            // =====================================================
+
+            const x =
+                (canvas.width - drawWidth) / 2;
+
+            const y =
+                (canvas.height - drawHeight) / 2;
+
+
+            // =====================================================
+            // DESENHA
+            // =====================================================
+
+            context.drawImage(
+                img,
+                x,
+                y,
+                drawWidth,
+                drawHeight
+            );
+        }
+
+
+        // =========================================================
+        // LOOP PRINCIPAL
+        // =========================================================
+
+        function updateAndRender() {
+
+            // Diferença entre frame atual e frame desejado
+            let diff =
+                targetFrameIndex - currentFrameIndex;
+
+
+            // =====================================================
+            // TRANSIÇÃO CIRCULAR
+            // =====================================================
+
+            if (diff > totalFrames / 2) {
+
+                diff -= totalFrames;
+
+            } else if (diff < -totalFrames / 2) {
+
+                diff += totalFrames;
             }
 
-            let angle = Math.atan2(-adjustedDx, adjustedDy);
-            let normAngle = (angle + Math.PI) / (2 * Math.PI);
 
-            // Define o frame de destino para onde o Lerp deve deslizar
-            targetFrameIndex = normAngle * (totalFrames - 1);
+            // =====================================================
+            // LERP
+            // =====================================================
+
+            if (Math.abs(diff) > 0.001) {
+
+                currentFrameIndex +=
+                    diff * lerpFactor;
+
+
+                // Mantém dentro do intervalo
+                if (currentFrameIndex < 0) {
+
+                    currentFrameIndex += totalFrames;
+                }
+
+                if (currentFrameIndex >= totalFrames) {
+
+                    currentFrameIndex -= totalFrames;
+                }
+
+            } else {
+
+                currentFrameIndex =
+                    targetFrameIndex;
+            }
+
+
+            // Renderiza o frame
+            render(currentFrameIndex);
+
+
+            // Próximo frame
+            requestAnimationFrame(updateAndRender);
+        }
+
+
+        // =========================================================
+        // CONTROLE DO MOUSE
+        // =========================================================
+
+        window.addEventListener('mousemove', (e) => {
+
+
+            // =====================================================
+            // CENTRO DA TELA
+            // =====================================================
+
+            const centerX =
+                window.innerWidth / 2;
+
+            const centerY =
+                window.innerHeight / 2;
+
+
+            // Distância do mouse em relação ao centro
+            const dx =
+                e.clientX - centerX;
+
+            const dy =
+                e.clientY - centerY;
+
+
+            const distance =
+                Math.hypot(dx, dy);
+
+
+            // =====================================================
+            // ZONA MORTA
+            // =====================================================
+
+            if (distance < 50) {
+
+                targetFrameIndex = 0;
+
+                return;
+            }
+
+
+            // =====================================================
+            // AJUSTE DO MOVIMENTO
+            // =====================================================
+
+            let adjustedDx = dx;
+
+            let adjustedDy = dy;
+
+
+            // Mouse na parte inferior
+            if (dy > 0) {
+
+                adjustedDx =
+                    dx * 0.55;
+
+                adjustedDy =
+                    dy * 1.35;
+
+            }
+
+            // Mouse na parte superior
+            else {
+
+                adjustedDx =
+                    dx * 1.40;
+
+                adjustedDy =
+                    dy * 0.70;
+            }
+
+
+            // =====================================================
+            // CALCULA O ÂNGULO
+            // =====================================================
+
+            let angle =
+                Math.atan2(
+                    -adjustedDx,
+                    adjustedDy
+                );
+
+
+            let normAngle =
+                (angle + Math.PI) /
+                (2 * Math.PI);
+
+
+            // =====================================================
+            // CONVERTE ÂNGULO PARA FRAME
+            // =====================================================
+
+            targetFrameIndex =
+                normAngle *
+                (totalFrames - 1);
         });
+
+
+        // =========================================================
+        // REDIMENSIONAMENTO DA JANELA
+        // =========================================================
+
+        window.addEventListener(
+            'resize',
+            resizeCanvas
+        );
+
+
+        // =========================================================
+        // INICIALIZAÇÃO
+        // =========================================================
+
+        images[0].onload = () => {
+
+            resizeCanvas();
+
+            requestAnimationFrame(
+                updateAndRender
+            );
+        };
+
     </script>
+
 </body>
+
 </html>
+```

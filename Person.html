@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animação de Frames - Suavizada com Lerp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <canvas id="frameCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('frameCanvas');
+        const context = canvas.getContext('2d');
+
+        const totalFrames = 238;
+        const currentFrameUrl = index => `./frames/frame_${index.toString().padStart(3, '0')}.jpg`;
+
+        const images = [];
+
+        // Precarregamento dos frames
+        for (let i = 1; i <= totalFrames; i++) {
+            const img = new Image();
+            img.src = currentFrameUrl(i);
+            images.push(img);
+        }
+
+        // Variáveis de controle de estado e suavização
+        let currentFrameIndex = 0; // Posição atual do frame (ponto flutuante)
+        let targetFrameIndex = 0;  // Posição de destino apontada pelo mouse
+        const lerpFactor = 0.08;   // Velocidade de suavização (0.01 = muito lento, 0.2 = muito rápido)
+
+        images[0].onload = () => {
+            canvas.width = images[0].naturalWidth;
+            canvas.height = images[0].naturalHeight;
+            // Inicia o loop de renderização contínuo
+            requestAnimationFrame(updateAndRender);
+        };
+
+        function render(index) {
+            const safeIndex = Math.max(0, Math.min(totalFrames - 1, Math.floor(index)));
+            if (images[safeIndex] && images[safeIndex].complete) {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(images[safeIndex], 0, 0);
+            }
+        }
+
+        // Loop contínuo que aplica o Lerp a cada quadro
+        function updateAndRender() {
+            // Calcula a diferença entre o destino e o frame atual
+            let diff = targetFrameIndex - currentFrameIndex;
+
+            // Trata a transição circular no topo (evita rebobinar 238 frames de uma vez)
+            if (diff > totalFrames / 2) {
+                diff -= totalFrames;
+            } else if (diff < -totalFrames / 2) {
+                diff += totalFrames;
+            }
+
+            // Aplica o Lerp se houver uma diferença relevante
+            if (Math.abs(diff) > 0.001) {
+                currentFrameIndex += diff * lerpFactor;
+
+                // Mantém o índice dentro do intervalo válido de 0 a totalFrames
+                if (currentFrameIndex < 0) currentFrameIndex += totalFrames;
+                if (currentFrameIndex >= totalFrames) currentFrameIndex -= totalFrames;
+            } else {
+                currentFrameIndex = targetFrameIndex;
+            }
+
+            render(currentFrameIndex);
+            requestAnimationFrame(updateAndRender);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const dx = e.clientX - centerX;
+            const dy = e.clientY - centerY;
+
+            const distance = Math.hypot(dx, dy);
+
+            // Zona morta no centro: olha para a frente (frame 0)
+            if (distance < 50) { 
+                targetFrameIndex = 0;
+                return;
+            }
+
+            let adjustedDx = dx;
+            let adjustedDy = dy;
+
+            if (dy > 0) {
+                // PARTE DE BAIXO
+                adjustedDx = dx * 0.55;
+                adjustedDy = dy * 1.35;
+            } else {
+                // PARTE DE CIMA
+                adjustedDx = dx * 1.40;
+                adjustedDy = dy * 0.70;
+            }
+
+            let angle = Math.atan2(-adjustedDx, adjustedDy);
+            let normAngle = (angle + Math.PI) / (2 * Math.PI);
+
+            // Define o frame de destino para onde o Lerp deve deslizar
+            targetFrameIndex = normAngle * (totalFrames - 1);
+        });
+    </script>
+</body>
+</html>

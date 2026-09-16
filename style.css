@@ -1,85 +1,200 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
-body {
-  font-family: Arial, sans-serif;
-  background: #0b0b0b;
-  color: #fff;
-  line-height: 1.6;
-}
+        /* =========================================================
+           RESET
+        ========================================================= */
+		* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* HERO */
-.hero {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: radial-gradient(circle at center, #1a1a1a, #000);
-  text-align: center;
-}
+        html,
+        body {
+            font-family: "AtypText", sans-serif;
+            width: 100%;
+            min-height: 100%;
+        }
+        body {
+            background: #10161a;
+            overflow-x: hidden;
+            font-family: sans-serif;
+        }
 
-.hero h1 {
-  font-size: 3rem;
-  letter-spacing: 2px;
-}
+        /* =========================================================
+           CONTAINER
+        ========================================================= */
+        .container {
+            width: 100%;
+        }
 
-.subtitle {
-  opacity: 0.7;
-  margin-top: 10px;
-}
+        /* =========================================================
+           ESTRUTURA GERAL DAS SEÇÕES
+           A seção é maior que a tela.
+           O conteúdo interno fica "preso" na tela.
+        ========================================================= */
 
-/* SECTIONS */
-.scroll-container {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+        .scroll-section {
+            position: relative;
+            width: 100%;
+        }
 
-canvas {
-  max-width: 100%;
-  max-height: 100%;
-}
+        .sticky-content {
+            position: sticky;
+            top: 0;
 
-/* SECTIONS */
-section {
-  padding: 60px 20px;
-  max-width: 900px;
-  margin: auto;
-}
+            width: 100%;
+            height: 100dvh;
 
-h2 {
-  margin-bottom: 20px;
-}
+            overflow: hidden;
 
-/* PROJETOS */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-}
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.card {
-  background: #141414;
-  padding: 20px;
-  border-radius: 12px;
-  transition: 0.3s;
-}
+        /* =========================================================
+           HERO
+           400vh = o usuário precisa percorrer 4 telas
+           enquanto o conteúdo permanece visível.
+        ========================================================= */
+        .hero {
+            height: 400vh;
+        }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 20px rgba(255,255,255,0.1);
-}
+        .hero-sticky {}
 
-/* FOOTER */
-footer {
-  text-align: center;
-  padding: 20px;
-  opacity: 0.5;
-}
+        .hero-video {
+            position: absolute;
+
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            top: 0;
+            left: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            pointer-events: none;
+        }
+
+        /* =========================================================
+           PROJETOS
+        ========================================================= */
+        .projetos {
+            height: 300vh;
+        }
+
+        .projetos .sticky-content {
+            color: #000;
+            padding: 40px;
+        }
+
+        .projetos-content {
+            width: min(1200px, 90%);
+            text-align: center;
+        }
+
+        /* =========================================================
+           SOBRE
+        ========================================================= */
+        .sobre {
+            height: 400vh;
+        }
+
+        .sobre .sticky-content {
+            color: white;
+            padding: 40px;
+        }
+
+        .sobre-content {
+            width: min(1200px, 90%);
+        }
+
+        /* =========================================================
+           PERSONAGEM
+           Continua com seu canvas e controle pelo mouse.
+        ========================================================= */
+        .personagem {
+            height: 300vh;
+        }
+
+        .personagem .sticky-content {}
+
+        #frameCanvas {
+            display: block;
+
+            max-width: 100%;
+            max-height: 100%;
+
+            width: auto;
+            height: auto;
+        }
+
+        /* =========================================================
+           FINAL
+        ========================================================= */
+        .end {
+            height: 200vh;
+        }
+
+        .end .sticky-content {
+            background-image: url("assets/503.png");
+            background-size: 60%;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            padding: 40px;
+        }
+
+        .end-content {
+            text-align: center;
+        }
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+        @media (max-width: 768px) {
+
+            .hero {
+                height: 300vh;
+            }
+
+            .projetos {
+                height: 200vh;
+            }
+
+            .sobre {
+                height: 300vh;
+            }
+
+            .personagem {
+                height: 250vh;
+            }
+
+            .end {
+                height: 150vh;
+            }
+
+        }
+
+    h1{color: #bebebe; font-size:5em; letter-spacing: -0.05em;}
+    h2{color: #828282; font-size:1em; letter-spacing: 0.3em; font-weight: lighter; line-height: 1.4em;}
+    h3{color: #828282; font-size:2.1em; letter-spacing: 0em; font-weight: lighter;}
+    h4{color: #f87a06; font-size:4em; letter-spacing: -0.05em; font-weight: bolder;}
+    h5{color: #bebebe; font-size:1.5em; letter-spacing: -0.05em; font-weight: bolder;}
+    h6{color: #828282; font-size:1em; letter-spacing: 0em; font-weight: lighter; line-height: 1.2em;}
+    

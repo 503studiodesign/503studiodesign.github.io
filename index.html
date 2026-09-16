@@ -1,63 +1,448 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+<link rel="stylesheet" type="text/css" href="style.css">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rafael Fort | Portfólio</title>
-
-  <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Studio</title>
 </head>
+
 <body>
+<div class="container">
+    <!-- =========================================================
+         HERO
+    ========================================================== -->
+    <section class="scroll-section hero">
+        <div class="sticky-content hero-sticky">
+            <video
+                id="heroVideo"
+                class="hero-video"
+                muted
+                playsinline
+                preload="auto">
+                <source src="hero.mp4" type="video/mp4">
+            </video>
 
-  <header class="hero">
-    <h1>Rafael Fort</h1>
-    <p class="subtitle">Criador • Desenvolvedor • Experiências Visuais</p>
-  </header>
-  
-  <section class="scroll-container">
-    <canvas id="canvas">imagem</canvas>
-  </section>
-  
-  <section class="sobre">
-    <h2>Sobre mim</h2>
-    <p>
-      Crio experiências digitais com foco visual, narrativa e impacto.
-      Trabalho com design, animação e desenvolvimento web.
-    </p>
-  </section>
+            <div class="hero-content">
+                <h1>Creative Studio</h1>
+                <h2>Ideias que não precisam existir para serem vistas.</h2>
+            </div>
+        </div>
+    </section>
+    <!-- =========================================================
+         PROJETOS
+    ========================================================== -->
+    <section class="scroll-section projetos">
+        <div class="sticky-content">
+            <div class="projetos-content">
+                <h3>NÃO É SÓ IA.</h3>
+                <h4>É IDEIA.</h4>
+                <h2>
+                    <br>
+                    Transformamos conceitos em imagens, vídeos<br>
+                    e experiências que chamam atenção antes mesmo<br>
+                    de alguém entender como foram feitas.
+                </h2>
+            </div>
+        </div>
+    </section>
+    <!-- =========================================================
+         SOBRE
+    ========================================================== -->
+    <section class="scroll-section sobre">
+        <div class="sticky-content">
+            <div class="sobre-content">
+                <div>    
+                    <div>
+                    <h5>IDEIA</h5>
+                    <p><h6>Tudo começa<br> com um conceito.</h6></p>
+                    </div>
+                    <div>
+                    <h5>IMAGEM</h5>
+                    <p><h6>Dê forma<br> ao invisível.</h6></p>
+                    </div>
+                    <div>
+                    <h5>MOVIMENTO</h5>
+                    <p><h6>A vida ganha<br> movimento.</h6></p>
+                    </div>
+                    <div>
+                    <h5>IMPACTO</h5>
+                    <p><h6>Resultado<br> que se destaca.</h6></p>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <h3 style="color: #828282; font-size: 2em; line-height: 0.8em;">01</h3><h5>FILM</h5>
+                    <p><h6><br>
+                        Filmes e narrativas visuais<br>
+                        com personagens,<br>
+                        cenários e mundos<br>
+                        criados com IA.<br><br>
+                    </p></h6>
+                    <button>
+                        VER PROJETO
+                    </button>
+                </div>
+                <br>
+                <div>
+                    <h3 style="color: #828282; font-size: 2em; line-height: 0.8em;">02</h3><h5>CHARACTER</h5>
+                    <p><h6><br>
+                        Personagens marcantes<br>
+                        e universos próprios.<br><br>
+                    </p></h6>
+                    <button>
+                        VER PROJETO
+                    </button>
+                </div>
+                <br>
+                <div>
+                    <h3 style="color: #828282; font-size: 2em; line-height: 0.8em;">03</h3><h5>BRAND EXPERIENCE</h5>
+                    <p><h6><br>
+                        Experiências imersivas<br>
+                        e visuais para eventos,<br>
+                        produtos e lançamentos.<br><br>
+                    </p></h6>
+                    <button>
+                        VER PROJETO
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- =========================================================
+         PERSONAGEM
+    ========================================================== -->
+    <section class="scroll-section personagem">
+        <div class="sticky-content">
+            <canvas id="frameCanvas"></canvas>
+        </div>
+    </section>
 
-  <section class="projetos">
-    <h2>Projetos</h2>
+    <!-- =========================================================
+         FINAL
+    ========================================================== -->
+    <section class="scroll-section end">
+        <div class="sticky-content">
+            <div class="end-content" style="text-align: left;"> 
+                <h6 style="color: #bebebe; font-weight: bolder;">Tem uma ideia?</h6>
+                <h6>Vamos transformar<br>em imagem.<br></h6>
+                <h6></h6><a href="https://www.instagram.com/503studiodesign/">Falar no Instagram</a></h6>
+            </div>
+        </div>
+    </section>
+</div>
 
-    <div class="grid">
+<script>
+/* =============================================================
+   HERO — VÍDEO CONTROLADO PELO SCROLL
+============================================================= */
+const hero = document.querySelector('.hero');
+const heroVideo = document.getElementById('heroVideo');
+function updateHeroVideo() {
+    const rect = hero.getBoundingClientRect();
+    /*
+        Quanto já percorremos dentro da Hero
+    */
+    const scrollDistance =
+        hero.offsetHeight - window.innerHeight;
 
-      <div class="card">
-        <h3>Projeto 1</h3>
-        <p>Descrição do projeto.</p>
-      </div>
+    const scrolled = -rect.top;
+    /*
+        Converte o scroll em porcentagem
+        0 = início
+        1 = final
+    */
+    let progress = scrolled / scrollDistance;
+    progress = Math.max(0, Math.min(1, progress));
+    /*
+        Converte porcentagem em tempo do vídeo
+    */
+    if (heroVideo.duration) {
+        heroVideo.currentTime =
+            progress * heroVideo.duration;
+    }
+    requestAnimationFrame(updateHeroVideo);
+}
 
-      <div class="card">
-        <h3>Projeto 2</h3>
-        <p>Descrição do projeto.</p>
-      </div>
+heroVideo.addEventListener(
+    'loadedmetadata',
+    () => {
 
-      <div class="card">
-        <h3>Projeto 3</h3>
-        <p>Descrição do projeto.</p>
-      </div>
+        heroVideo.pause();
 
-    </div>
-  </section>
+        requestAnimationFrame(updateHeroVideo);
 
-  <section class="contato">
-    <h2>Contato</h2>
-    <p>Email: seuemail@email.com</p>
-  </section>
+    }
+);
 
-  <footer>
-    <p>© 2026 Rafael Fort</p>
-  </footer>
+/* =============================================================
+   PERSONAGEM — FRAMES
+============================================================= */
 
-  <script src="script.js"></script>
+const canvas =
+    document.getElementById('frameCanvas');
+
+const context =
+    canvas.getContext('2d');
+
+const totalFrames = 238;
+
+const currentFrameUrl =
+    index =>
+        `./frames/frame_${index
+            .toString()
+            .padStart(3, '0')}.jpg`;
+
+const images = [];
+
+/*
+    Precarregamento
+*/
+for (let i = 1; i <= totalFrames; i++) {
+
+    const img = new Image();
+
+    img.src = currentFrameUrl(i);
+
+    images.push(img);
+
+}
+
+/* =============================================================
+   CONTROLE DO FRAME
+============================================================= */
+
+let currentFrameIndex = 0;
+
+let targetFrameIndex = 0;
+
+const lerpFactor = 0.08;
+
+/* =============================================================
+   PRIMEIRO FRAME
+============================================================= */
+
+images[0].onload = () => {
+
+    canvas.width =
+        images[0].naturalWidth;
+
+    canvas.height =
+        images[0].naturalHeight;
+
+
+    requestAnimationFrame(updateAndRender);
+
+};
+
+/* =============================================================
+   RENDER
+============================================================= */
+
+function render(index) {
+
+    const safeIndex =
+        Math.max(
+            0,
+            Math.min(
+                totalFrames - 1,
+                Math.floor(index)
+            )
+        );
+
+    if (
+        images[safeIndex] &&
+        images[safeIndex].complete
+    ) {
+
+        context.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        context.drawImage(
+            images[safeIndex],
+            0,
+            0
+        );
+
+    }
+
+}
+
+/* =============================================================
+   LOOP COM LERP
+============================================================= */
+
+function updateAndRender() {
+
+    let diff =
+        targetFrameIndex -
+        currentFrameIndex;
+
+    /*
+        Transição circular
+    */
+
+    if (diff > totalFrames / 2) {
+
+        diff -= totalFrames;
+
+    }
+
+    else if (diff < -totalFrames / 2) {
+
+        diff += totalFrames;
+
+    }
+
+
+    if (Math.abs(diff) > 0.001) {
+
+        currentFrameIndex +=
+            diff * lerpFactor;
+
+
+        if (currentFrameIndex < 0) {
+
+            currentFrameIndex += totalFrames;
+
+        }
+
+
+        if (currentFrameIndex >= totalFrames) {
+
+            currentFrameIndex -= totalFrames;
+
+        }
+
+    }
+
+    else {
+
+        currentFrameIndex =
+            targetFrameIndex;
+
+    }
+
+
+    render(currentFrameIndex);
+
+
+    requestAnimationFrame(
+        updateAndRender
+    );
+
+}
+
+
+
+/* =============================================================
+   MOUSE → OLHAR DO PERSONAGEM
+============================================================= */
+
+window.addEventListener(
+    'mousemove',
+    (e) => {
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        const centerX =
+            rect.left +
+            rect.width / 2;
+
+
+        const centerY =
+            rect.top +
+            rect.height / 2;
+
+
+        const dx =
+            e.clientX - centerX;
+
+
+        const dy =
+            e.clientY - centerY;
+
+
+        const distance =
+            Math.hypot(dx, dy);
+
+
+        /*
+            Zona morta
+        */
+
+        if (distance < 50) {
+
+            targetFrameIndex = 0;
+
+            return;
+
+        }
+
+
+        let adjustedDx = dx;
+
+        let adjustedDy = dy;
+
+
+        /*
+            Parte inferior
+        */
+
+        if (dy > 0) {
+
+            adjustedDx =
+                dx * 0.55;
+
+            adjustedDy =
+                dy * 1.35;
+
+        }
+
+
+        /*
+            Parte superior
+        */
+
+        else {
+
+            adjustedDx =
+                dx * 1.40;
+
+            adjustedDy =
+                dy * 0.70;
+
+        }
+
+
+        const angle =
+            Math.atan2(
+                -adjustedDx,
+                adjustedDy
+            );
+
+
+        const normAngle =
+            (angle + Math.PI) /
+            (2 * Math.PI);
+
+
+        targetFrameIndex =
+            normAngle *
+            (totalFrames - 1);
+
+    }
+);
+
+
+</script>
+
 </body>
 </html>
